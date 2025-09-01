@@ -1,0 +1,22 @@
+# Python caches
+__pycache__/
+*.pyc
+
+# Python virtual environments
+.venv/
+venv/
+hand_calculator_env/
+
+# IDE/editor configs
+.vscode/
+.idea/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Large binaries (prevent GitHub push errors)
+*.dll
+*.pyd
+*.so
+*.exe
