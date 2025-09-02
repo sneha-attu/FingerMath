@@ -23,10 +23,11 @@ class GestureRecognizer:
         """Load gesture mapping from JSON file."""
         config_path = os.path.join(os.path.dirname(__file__), 'config', 'gesture_map.json')
         
-        # Default mapping if file doesn't exist
+        # Default mapping - all keys MUST be strings with quotes
         default_map = {
+            "(0, 0, 0, 0, 0)": "0",
             "(0, 1, 0, 0, 0)": "1",
-            "(0, 1, 1, 0, 0)": "2", 
+            "(0, 1, 1, 0, 0)": "2",
             "(0, 1, 1, 1, 0)": "3",
             "(0, 1, 1, 1, 1)": "4",
             "(1, 1, 1, 1, 1)": "5",
@@ -48,7 +49,6 @@ class GestureRecognizer:
                 with open(config_path, 'r') as f:
                     return json.load(f)
             else:
-                # Create config directory and file
                 os.makedirs(os.path.dirname(config_path), exist_ok=True)
                 with open(config_path, 'w') as f:
                     json.dump(default_map, f, indent=2)

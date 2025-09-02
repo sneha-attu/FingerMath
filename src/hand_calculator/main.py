@@ -35,11 +35,20 @@ def main():
         print("Error: Could not open camera")
         return
     
-    print("Hand Gesture Calculator Started!")
+    # FULLSCREEN SETUP
+    window_name = 'Hand Gesture Calculator'
+    cv2.namedWindow(window_name, cv2.WINDOW_NORMAL)  # Essential for fullscreen
+    cv2.setWindowProperty(window_name, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
+    
+    print("Hand Gesture Calculator Started in FULLSCREEN!")
     print("Controls:")
-    print("- Show finger gestures for numbers (1-9)")
+    print("- Show finger gestures for numbers (0-9)")
     print("- Use specific gestures for +, -, *, /, =, C")
     print("- Press 'q' to quit")
+    print("- Press 'f' to toggle fullscreen/windowed mode")
+    
+    # Fullscreen toggle state
+    is_fullscreen = True
     
     try:
         while True:
@@ -70,7 +79,7 @@ def main():
                 elif token == "C":
                     evaluator.clear_expression()
                     print("Cleared")
-                elif token == "⌫":
+                elif token == "⌫":  # Fixed: Proper unicode character
                     evaluator.backspace()
                 else:
                     evaluator.add_token(token)
@@ -89,12 +98,25 @@ def main():
             if landmarks:
                 hand_tracker.draw_landmarks(frame, landmarks[0])
             
-            # Display frame
-            cv2.imshow('Hand Gesture Calculator', frame)
+            # Display frame (use the same window name)
+            cv2.imshow(window_name, frame)
             
-            # Check for quit
-            if cv2.waitKey(1) & 0xFF == ord('q'):
+            # Check for keyboard input
+            key = cv2.waitKey(1) & 0xFF
+            
+            # Quit on 'q'
+            if key == ord('q'):
                 break
+            
+            # TOGGLE FULLSCREEN with 'f' key
+            elif key == ord('f'):
+                is_fullscreen = not is_fullscreen
+                if is_fullscreen:
+                    cv2.setWindowProperty(window_name, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
+                    print("Switched to FULLSCREEN mode")
+                else:
+                    cv2.setWindowProperty(window_name, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_NORMAL)
+                    print("Switched to WINDOWED mode")
                 
     except KeyboardInterrupt:
         print("\nShutting down...")

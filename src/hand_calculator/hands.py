@@ -1,6 +1,5 @@
 """
-Hand tracking using MediaPipe.
-Provides hand landmark detection and utilities.
+Enhanced hand tracking with multi-hand support.
 """
 
 import cv2
@@ -8,13 +7,14 @@ import mediapipe as mp
 import numpy as np
 
 class HandTracker:
-    def __init__(self, max_num_hands=1, min_detection_confidence=0.5, min_tracking_confidence=0.5):
+    def __init__(self, max_num_hands=2, min_detection_confidence=0.5, min_tracking_confidence=0.5):
         self.mp_hands = mp.solutions.hands
         self.mp_drawing = mp.solutions.drawing_utils
         
+        # Updated to support 2 hands for multi-hand gestures
         self.hands = self.mp_hands.Hands(
             static_image_mode=False,
-            max_num_hands=max_num_hands,
+            max_num_hands=max_num_hands,  # CHANGED: Now supports 2 hands
             min_detection_confidence=min_detection_confidence,
             min_tracking_confidence=min_tracking_confidence
         )
@@ -41,8 +41,11 @@ class HandTracker:
             
         return landmarks
     
-    def draw_landmarks(self, frame, landmarks):
-        """Draw hand landmarks on frame."""
+    def draw_landmarks(self, frame, landmarks, hand_index=0):
+        """Draw hand landmarks on frame with different colors for each hand."""
+        colors = [(0, 255, 0), (255, 0, 0)]  # Green for first hand, Red for second
+        color = colors[hand_index % 2]
+        
         # Draw connections
         connections = [
             # Thumb
@@ -65,7 +68,7 @@ class HandTracker:
             if start_idx < len(landmarks) and end_idx < len(landmarks):
                 start_point = tuple(landmarks[start_idx])
                 end_point = tuple(landmarks[end_idx])
-                cv2.line(frame, start_point, end_point, (0, 255, 0), 2)
+                cv2.line(frame, start_point, end_point, color, 2)
         
         # Draw landmarks
         for i, landmark in enumerate(landmarks):
@@ -73,19 +76,4 @@ class HandTracker:
             if i in [4, 8, 12, 16, 20]:  # Fingertips
                 cv2.circle(frame, (x, y), 8, (255, 0, 0), -1)
             else:
-                cv2.circle(frame, (x, y), 5, (0, 0, 255), -1)
-    
-    def get_finger_positions(self, landmarks):
-        """Get finger tip and PIP positions for gesture recognition."""
-        if len(landmarks) < 21:
-            return None
-            
-        finger_positions = {
-            'thumb': {'tip': landmarks[4], 'pip': landmarks[3]},
-            'index': {'tip': landmarks[8], 'pip': landmarks[6]},
-            'middle': {'tip': landmarks[12], 'pip': landmarks[10]},
-            'ring': {'tip': landmarks[16], 'pip': landmarks[14]},
-            'pinky': {'tip': landmarks[20], 'pip': landmarks[18]}
-        }
-        
-        return finger_positions
+                cv2.circle(frame, (x, y), 5, color, -1)
